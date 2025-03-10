@@ -8,12 +8,15 @@ public class WhatGet {
     int Num1=in.nextInt();
      System.out.println("Ingrese eñ valor del segundo numero");
     int Num2=in.nextInt();
-
-    int Num1 = 0;
-    int Num2 = 0;
     int Suma,Resta,Divicion,Multiplicacion;
-    int ValorNumber=in.nextInt();
-      
+    int  Resultado=0;
+    System.out.println("Menu para saber que opcion quieres ");
+    System.out.println("1: si quieres Suma");
+    System.out.println("2: si quieres Divicion");
+    System.out.println("3: si quieres Resta");
+    System.out.println("4: si quieres Multiplicar");
+    int opcion=0;
+    opcion=in.nextInt();
     switch ( opcion){
         case 1:
          Resultado = Num1 + Num2 ;
@@ -28,9 +31,13 @@ public class WhatGet {
         case 4:
          Resultado = Num1 * Num2;
         default:
-        Resultado = 
+        Resultado = 0;
            break;
 
-       }
-   } 
+     
+        }
+   System.out.println("El resultado es "+Resultado);
+   
+    } 
+
 }
