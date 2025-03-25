@@ -1,4 +1,3 @@
-
 import java.util.Scanner;
 
 public class Armstrong {
@@ -42,3 +41,4 @@ public class Armstrong {
     
     }
 }
+
