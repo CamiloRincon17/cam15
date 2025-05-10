@@ -1,0 +1,176 @@
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.*;
+
+public class DilemaPrisioneroGrafico {
+    private JFrame frame;
+    private JPanel panelPrincipal;
+    private JLabel lblJugador1, lblJugador2, lblPuntos1, lblPuntos2, lblRonda;
+    private JButton btnCooperar1, btnTraicionar1, btnCooperar2, btnTraicionar2;
+    private JTextArea txtHistorial;
+    private JPanel panelResultados;
+    
+    private int puntosJugador1 = 0;
+    private int puntosJugador2 = 0;
+    private int rondaActual = 1;
+    private List<String> historial = new ArrayList<>();
+
+    public DilemaPrisioneroGrafico() {
+        crearInterfaz();
+    }
+
+    private void crearInterfaz() {
+        frame = new JFrame("Dilema del Prisionero - Teoría de Juegos");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(600, 500);
+        
+        panelPrincipal = new JPanel(new BorderLayout(10, 10));
+        panelPrincipal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        // Panel superior con información
+        JPanel panelSuperior = new JPanel(new GridLayout(1, 3, 10, 10));
+        lblRonda = new JLabel("Ronda: 1", SwingConstants.CENTER);
+        lblRonda.setFont(new Font("Arial", Font.BOLD, 16));
+        panelSuperior.add(lblRonda);
+        
+        lblJugador1 = new JLabel("Jugador 1: 0 pts", SwingConstants.CENTER);
+        lblJugador2 = new JLabel("Jugador 2: 0 pts", SwingConstants.CENTER);
+        panelSuperior.add(lblJugador1);
+        panelSuperior.add(lblJugador2);
+        
+        // Panel central con botones de decisión
+        JPanel panelCentral = new JPanel(new GridLayout(2, 2, 10, 10));
+        
+        btnCooperar1 = new JButton("Cooperar (C)");
+        btnTraicionar1 = new JButton("Traicionar (T)");
+        btnCooperar2 = new JButton("Cooperar (C)");
+        btnTraicionar2 = new JButton("Traicionar (T)");
+        
+        btnCooperar1.addActionListener(e -> tomarDecision("C", "1"));
+        btnTraicionar1.addActionListener(e -> tomarDecision("T", "1"));
+        btnCooperar2.addActionListener(e -> tomarDecision("C", "2"));
+        btnTraicionar2.addActionListener(e -> tomarDecision("T", "2"));
+        
+        panelCentral.add(crearPanelJugador(btnCooperar1, btnTraicionar1, "Jugador 1"));
+        panelCentral.add(crearPanelJugador(btnCooperar2, btnTraicionar2, "Jugador 2"));
+        
+        // Panel de resultados con gráfico
+        panelResultados = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                dibujarResultados(g);
+            }
+        };
+        panelResultados.setPreferredSize(new Dimension(200, 150));
+        
+        // Área de historial
+        txtHistorial = new JTextArea(8, 20);
+        txtHistorial.setEditable(false);
+        JScrollPane scrollHistorial = new JScrollPane(txtHistorial);
+        
+        // Organizar componentes
+        panelPrincipal.add(panelSuperior, BorderLayout.NORTH);
+        panelPrincipal.add(panelCentral, BorderLayout.CENTER);
+        panelPrincipal.add(panelResultados, BorderLayout.EAST);
+        panelPrincipal.add(scrollHistorial, BorderLayout.SOUTH);
+        
+        frame.add(panelPrincipal);
+        frame.setVisible(true);
+    }
+
+    private JPanel crearPanelJugador(JButton btnCooperar, JButton btnTraicionar, String nombre) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createTitledBorder(nombre));
+        
+        JPanel panelBotones = new JPanel(new GridLayout(2, 1, 5, 5));
+        panelBotones.add(btnCooperar);
+        panelBotones.add(btnTraicionar);
+        
+        panel.add(panelBotones, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private void tomarDecision(String decision, String jugador) {
+        String mensaje = "Jugador " + jugador + " eligió: " + 
+                        (decision.equals("C") ? "Cooperar" : "Traicionar");
+        historial.add(mensaje);
+        txtHistorial.append(mensaje + "\n");
+        
+        if (historial.size() % 2 == 0) {
+            calcularResultadoRonda();
+            rondaActual++;
+            lblRonda.setText("Ronda: " + rondaActual);
+        }
+    }
+
+    private void calcularResultadoRonda() {
+        String ultima1 = historial.get(historial.size()-2);
+        String ultima2 = historial.get(historial.size()-1);
+        
+        char decision1 = ultima1.charAt(ultima1.length()-1);
+        char decision2 = ultima2.charAt(ultima2.length()-1);
+        
+        // Matriz de pagos
+        if (decision1 == 'C' && decision2 == 'C') {
+            puntosJugador1 += 3;
+            puntosJugador2 += 3;
+        } else if (decision1 == 'C' && decision2 == 'T') {
+            puntosJugador2 += 5;
+        } else if (decision1 == 'T' && decision2 == 'C') {
+            puntosJugador1 += 5;
+        } else {
+            puntosJugador1 += 1;
+            puntosJugador2 += 1;
+        }
+        
+        actualizarPuntos();
+        panelResultados.repaint();
+    }
+
+    private void actualizarPuntos() {
+        lblJugador1.setText("Jugador 1: " + puntosJugador1 + " pts");
+        lblJugador2.setText("Jugador 2: " + puntosJugador2 + " pts");
+    }
+
+    private void dibujarResultados(Graphics g) {
+        int width = panelResultados.getWidth();
+        int height = panelResultados.getHeight();
+        
+        // Dibujar ejes
+        g.setColor(Color.BLACK);
+        g.drawLine(30, height-30, width-10, height-30); // Eje X
+        g.drawLine(30, height-30, 30, 20);             // Eje Y
+        
+        // Dibujar puntos
+        int maxPuntos = Math.max(puntosJugador1, puntosJugador2) + 2;
+        if (maxPuntos < 5) maxPuntos = 5;
+        
+        // Escala
+        double escalaY = (height-50) / (double)maxPuntos;
+        int barWidth = 30;
+        
+        // Dibujar barras
+        g.setColor(Color.BLUE);
+        int barHeight1 = (int)(puntosJugador1 * escalaY);
+        g.fillRect(50, height-30 - barHeight1, barWidth, barHeight1);
+        
+        g.setColor(Color.RED);
+        int barHeight2 = (int)(puntosJugador2 * escalaY);
+        g.fillRect(100, height-30 - barHeight2, barWidth, barHeight2);
+        
+        // Etiquetas
+        g.setColor(Color.BLACK);
+        g.drawString("J1", 55, height-10);
+        g.drawString("J2", 105, height-10);
+        g.drawString("Puntos", width/2-20, height-10);
+        
+        // Leyenda
+        g.drawString("Puntos por ronda", 10, 15);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new DilemaPrisioneroGrafico());
+    }
+}
