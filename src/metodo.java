@@ -1,6 +1,5 @@
 import java.util.*;
 public class metodo {
-  
     public static int encontrarMaximo(int a, int b, int c) {
         int maximo = a;
         if (b > maximo) {
